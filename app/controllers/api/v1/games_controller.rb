@@ -12,8 +12,27 @@ class Api::V1::GamesController < ApplicationController
   end
 
   def create
-    @game = Game.create(strongParams)
-    render json: @game, status: :created
+  game = Game.new(strongParams)
+  if game.save
+    serialized_data = ActiveModelSerializers::Adapter::Json.new(
+      GameSerializer.new(game)
+    ).serializable_hash
+    ActionCable.server.broadcast 'games_channel', serialized_data
+    render json: game, head: :ok
+  end
+end
+
+  def update
+    game = Game.find_by(id: params[:id])
+    game.update(strongParams)
+    if game.save
+      serialized_data = ActiveModelSerializers::Adapter::Json.new(
+        GameSerializer.new(game)
+      ).serializable_hash
+      puts 'adsfsadf'
+      GamesChannel.broadcast_to game, serialized_data
+      head :ok
+    end
   end
 
   def destroy
@@ -27,7 +46,7 @@ class Api::V1::GamesController < ApplicationController
   end
 
   def strongParams
-    params.require(:game).permit(:name)
+    params.require(:game).permit(:title, :hasPassword, :unSecurePassword)
   end
 
 end
