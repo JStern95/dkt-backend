@@ -8,5 +8,3 @@
 
 Game.create(title: "Password", hasPassword: true, unSecurePassword: "brooke")
 Game.create(title: "No Password", hasPassword: false)
-
-User.create(username: "Sean", password: "test")

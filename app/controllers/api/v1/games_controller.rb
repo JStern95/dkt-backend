@@ -17,7 +17,7 @@ class Api::V1::GamesController < ApplicationController
     serialized_data = ActiveModelSerializers::Adapter::Json.new(
       GameSerializer.new(game)
     ).serializable_hash
-    ActionCable.server.broadcast 'games_channel', serialized_data
+    ActionCable.server.broadcast 'lobby_channel', serialized_data
     render json: game, head: :ok
   end
 end
@@ -30,7 +30,7 @@ end
         GameSerializer.new(game)
       ).serializable_hash
       puts 'adsfsadf'
-      GamesChannel.broadcast_to game, serialized_data
+      GameChannel.broadcast_to game, serialized_data
       head :ok
     end
   end
@@ -46,7 +46,7 @@ end
   end
 
   def strongParams
-    params.require(:game).permit(:title, :hasPassword, :unSecurePassword)
+    params.require(:game).permit(:title, :hasPassword, :unSecurePassword, :current_players, :active)
   end
 
 end

@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  skip_before_action :authorized, only: [:create]
+  skip_before_action :authorized#, only: %i[:create]
 
 
   def index
@@ -15,10 +15,21 @@ class Api::V1::UsersController < ApplicationController
     @user = User.create(user_params)
     if @user.valid?
       @token = encode_token(user_id: @user.id)
+      ActionCable.server.broadcast "user_channel", User.all.map {|user| UserSerializer.new(user)}
       render json: { user: UserSerializer.new(@user), jwt: @token }, status: :created
     else
       render json: { error: 'failed to create user' }, status: :not_acceptable
     end
+  end
+
+  def update
+    @user = User.find_by(username: params[:username])
+    @user.update(user_params)
+    # serialized_data = ActiveModelSerializers::Adapter::Json.new(
+    #   {users: User.all.map {|user| UserSerializer.new(user)}}
+    # ).serializable_hash
+    ActionCable.server.broadcast "user_channel", User.all.map {|user| UserSerializer.new(user)}
+    render json: @user, status: :ok
   end
 
   private
