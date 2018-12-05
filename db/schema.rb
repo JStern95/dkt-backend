@@ -13,6 +13,7 @@
 ActiveRecord::Schema.define(version: 2018_11_27_210211) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "citext"
   enable_extension "plpgsql"
 
   create_table "games", force: :cascade do |t|
@@ -26,7 +27,7 @@ ActiveRecord::Schema.define(version: 2018_11_27_210211) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "username"
+    t.citext "username"
     t.string "password_digest"
     t.integer "games_won", default: 0
     t.integer "games_lost", default: 0
